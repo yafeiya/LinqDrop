@@ -1,0 +1,21 @@
+# Local runtime state, preferences, diagnostics and legacy backups
+.runtime/
+__pycache__/
+*.py[cod]
+*.log
+*.tmp
+*.bak
+
+# Virtual environments and local secrets
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
