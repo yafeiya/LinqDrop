@@ -1,186 +1,187 @@
-# 邻传 LinqDrop
+# LinqDrop
 
-**在同一个局域网里，用浏览器把文件传给身边的设备。**
+**English** | [简体中文](README.zh-CN.md)
 
-LinqDrop 是一款离线运行的局域网跨设备文件互传工具。一台电脑启动本地服务，手机、平板和其他电脑打开同一个地址加入，选择接收设备后即可互传。无需账号、手机 App、云服务器或外网连接。
+**Share files between nearby devices over your local network, using a browser.**
 
-当前版本：**2.0.1**。服务端使用 Python 标准库，网页和二维码库均随源码提供，无需安装第三方依赖。
+LinqDrop is an offline file transfer tool for phones, tablets, and computers on the same local network. Start the service on one computer, open its address on your other devices, choose a recipient, and send files. No account, mobile app, cloud server, or internet connection is required.
 
-## 主要功能
+Current version: **2.0.1**. The server uses the Python standard library. All web assets, including the QR code library, are bundled with the project, so no third-party dependencies or frontend build steps are needed.
 
-- **统一入口**：Windows 双击 `LinqDrop.bat` 启动服务并打开控制台，再次双击会复用正在运行的服务。
-- **跨设备互传**：支持电脑与手机、手机与手机，以及多台设备同时加入。
-- **默认免访问码**：打开地址或扫码即可加入；主机可开启“加入时需要访问码”，设置在重启后保留。
-- **在线设备列表**：接收设备卡片和下拉框仅显示当前在线的浏览器。
-- **接收前确认**：支持多文件排队，以及批量接收同一设备发来的文件邀请。
-- **传输控制**：显示进度，支持在当前发送页面暂停、继续和取消；单浏览器最多同时上传两个文件。
-- **临时中转**：单文件上限 2 GiB，主机临时文件总预留空间上限 10 GiB。
-- **主机网络控制台**：显示访问地址、网卡和二维码，支持 Windows 防火墙检测与修复、诊断导出、停止服务。
+## Features
 
-## 运行要求
+- **One launcher:** Double-click `LinqDrop.bat` on Windows to start the service and open the host console. Launching it again reuses the running service.
+- **Multiple devices:** Transfer files between computers and phones, or between two phones, with multiple devices connected at once.
+- **No access code by default:** Open the address or scan the QR code to join. The host can enable an access code, and the setting persists across restarts.
+- **Online recipients only:** Device cards and the recipient dropdown show only browsers that are currently online.
+- **Recipient approval:** Queue multiple files and approve individual transfers or a batch from the same sender.
+- **Transfer controls:** View progress and pause, resume, or cancel uploads while keeping the sending page open. Each browser can upload up to two files at once.
+- **Temporary storage:** Up to 2 GiB per file and 10 GiB of reserved space across uncleared transfers.
+- **Host controls:** View network addresses and QR codes, check or repair Windows firewall access, export diagnostics, and stop the service.
 
-| 项目 | 要求 |
+## Requirements
+
+| Component | Requirement |
 | --- | --- |
-| 提供服务的电脑 | Python 3.9 或更新版本，保持开机并运行服务 |
-| 操作系统 | Windows 提供双击入口；macOS / Linux 提供启动脚本 |
-| 接收及发送设备 | 支持 `fetch`、`AbortController` 和现代 JavaScript 的浏览器 |
-| 网络 | 所有设备连接可互相访问的同一 Wi-Fi、局域网或热点 |
-| 安装依赖 | 无需 `pip install`、Node.js 或构建前端 |
+| Host computer | Python 3.9 or newer; the computer and service must remain running |
+| Operating system | Windows launcher included; startup script provided for macOS / Linux |
+| Sending and receiving devices | A browser supporting `fetch`, `AbortController`, and modern JavaScript |
+| Network | Devices on the same reachable Wi-Fi network, LAN, or hotspot |
+| Dependencies | No `pip install`, Node.js, or frontend build required |
 
-Windows 防火墙自动检测和修复功能仅用于 Windows。macOS / Linux 上需自行允许相应端口；这些平台的完整操作尚未实机验证。
+Automatic firewall checks and repair are available on Windows. On macOS / Linux, allow the service port through the system firewall yourself. Full operation on these platforms has not been verified on physical devices. The current web interface is in Chinese; English instructions below include key interface labels.
 
-## 快速开始
+## Quick start
 
-### 1. 获取项目
+### 1. Download the project
 
-在仓库页面选择 **Code → Download ZIP**，完整解压后使用；也可克隆：
+Choose **Code → Download ZIP** on GitHub and extract the entire archive, or clone the repository:
 
 ```bash
 git clone https://github.com/yafeiya/LinqDrop.git
 cd LinqDrop
 ```
 
-### 2. 在电脑上启动
+### 2. Start the service on your computer
 
-**Windows**：双击项目根目录中的 `LinqDrop.bat`。
-
-也可以在终端运行：
+**Windows:** Double-click `LinqDrop.bat` in the project folder, or run:
 
 ```powershell
 py -3 launcher.py
 ```
 
-**macOS / Linux**：
+**macOS / Linux:**
 
 ```bash
 sh start-macos-linux.sh
 ```
 
-启动器会打开主机控制台。默认地址为：
+The launcher opens the host console in your browser. Its default address is:
 
 ```text
 http://127.0.0.1:8765/
 ```
 
-默认端口为 `8765`。端口被占用时，启动器会选择后续可用端口，请以控制台显示的地址为准。关闭网页后，主机服务仍在后台运行；需要停止时点击控制台中的“停止服务”。
+The default port is `8765`. If another application is using it, the launcher selects an available port from the following ports. Use the address displayed in the console. Closing the browser page leaves the service running in the background; use **Stop service** (`停止服务`) in the host console to stop it.
 
-### 3. 让其他设备加入
+### 3. Join from another device
 
-1. 手机、平板和其他电脑**连接与主机相同的 Wi-Fi 或局域网**。只有移动数据连接时，无法访问主机的局域网地址。
-2. 扫描主机页面上的二维码，或在浏览器地址栏输入主机显示的完整网址，例如 `http://192.168.1.100:8765/`。
-3. 默认自动加入，无需输入访问码。上面的 IP 仅为示意，请使用你自己的主机地址。
+1. **Connect your phone, tablet, or other computer to the same Wi-Fi network or LAN as the host.** A phone using only mobile data cannot reach the host's LAN address.
+2. Scan the QR code shown on the host, or enter its full address in the browser, for example `http://192.168.1.100:8765/`.
+3. Devices join automatically by default, without an access code. The IP address above is an example; use the actual address shown by your host.
 
-`127.0.0.1` 代表当前设备自身，主机控制台会提供供其他设备使用的局域网 IP 地址。
+`127.0.0.1` refers to the device you are currently using. Other devices must use the host's LAN IP address shown in the console.
 
-### 4. 发送和保存文件
+### 4. Send and save files
 
-1. 在“选择接收设备”中选中接收方。
-2. 选择文件，或拖入文件，支持一次选择多个文件。
-3. 对方点击“接收文件”后开始上传。
-4. 接收完成后，在接收设备点击“下载文件”。
-5. 通过浏览器下载列表确认文件已经保存。手机传输时请保持页面在前台。
+1. Select the recipient under **Choose a receiving device** (`选择接收设备`).
+2. Choose or drag in your files. You can select multiple files at once.
+3. The recipient clicks **Accept files** (`接收文件`) to start the upload.
+4. Once the transfer is ready, click **Download file** (`下载文件`) on the receiving device.
+5. Check the browser's downloads list to confirm that the file was saved. Keep the page in the foreground during transfers on a phone.
 
-设备列表显示的是已经打开网页并加入的浏览器。不同浏览器视为不同设备；同一浏览器的多个标签页共用设备身份。离开后的设备在下一次同步时隐藏；断网或关闭浏览器后，约 25 秒无心跳会被隐藏，恢复在线后重新显示。
+The device list contains browsers that have opened the page and joined. Different browsers are treated as separate devices; tabs in the same browser share an identity. A device that explicitly leaves disappears on the next synchronization. After a disconnect or browser closure, it is hidden after approximately 25 seconds without a heartbeat and reappears when it comes back online.
 
-## 访问码开关
+## Optional access code
 
-在主机电脑通过 `http://127.0.0.1:实际端口/` 打开控制台，可设置“**加入时需要访问码**”。
+Open the host console on the host computer at `http://127.0.0.1:<port>/` to change **Require an access code** (`加入时需要访问码`).
 
-| 状态 | 新设备如何加入 |
+| Setting | How new devices join |
 | --- | --- |
-| 关闭，默认状态 | 打开局域网地址或扫码后自动加入 |
-| 开启 | 输入主机显示的 8 位访问码，或扫描包含访问码的二维码 |
+| Off, the default | Open the LAN address or scan the QR code to join automatically |
+| On | Enter the host's 8-digit access code, or scan the QR code containing it |
 
-- 开关保存在 `.runtime/settings.json`，服务重启后保留。
-- 重新开启访问码或重启服务会生成新码。
-- 开启时可点击“更换访问码”；切换开关和更换访问码均不影响已加入的设备。
-- 服务重启后，浏览器需重新加入；免码模式下刷新页面即可自动加入。
-- 主机控制操作只接受来自本机回环地址且持有管理凭据的请求。
+- The setting is saved in `.runtime/settings.json` and persists across service restarts.
+- Turning the requirement back on or restarting the service generates a new code.
+- When enabled, **Change access code** (`更换访问码`) generates a replacement code. Changing the code or toggling the requirement leaves already joined devices connected.
+- After a service restart, browsers need to rejoin. With access codes disabled, refreshing the page joins automatically.
+- Host control operations require a request from the local loopback address with the host management credential.
 
-## 工作原理
+## How it works
 
 ```mermaid
 flowchart LR
-    phone[手机浏览器] <--> hub[电脑上的 LinqDrop 服务]
-    computer[另一台电脑的浏览器] <--> hub
-    tablet[平板浏览器] <--> hub
-    hub <--> storage[主机临时文件]
+    phone[Phone browser] <--> hub[LinqDrop service on the host computer]
+    computer[Another computer's browser] <--> hub
+    tablet[Tablet browser] <--> hub
+    hub <--> storage[Temporary files on the host]
 ```
 
-主机提供网页、设备在线状态和文件传输接口。发送方分块上传文件到主机临时目录；接收方确认后，可从主机下载文件。手机与手机互传也通过这台主机中转，因此主机必须保持运行。
+The host serves the web interface, tracks online devices, and handles file transfers. After the recipient approves a transfer, the sender uploads the file in chunks to the host's temporary directory. The recipient can download the completed file from the host. Transfers between two phones also use the host as a relay, so it must remain running.
 
-所有页面和资源都在本地提供，不使用 CDN、在线配对或第三方分析。GitHub 用于保存和下载源码，运行工具时无需连接 GitHub。
+All pages and assets are served locally, with no CDN, online pairing service, or third-party analytics. GitHub stores and distributes the source code; running LinqDrop does not require access to GitHub.
 
-## 手机打不开时
+## If your phone cannot open the page
 
-按顺序检查：
+Check these in order:
 
-1. **手机已连接 Wi-Fi**：确认与电脑在同一局域网，避免仅使用移动数据。必要时让所有设备连接同一个手机热点。
-2. **使用正确地址**：完整输入主机显示的 `http://局域网IP:端口/`，换 Wi-Fi 或网卡后重新查看地址。
-3. **允许防火墙入站**：在主机控制台点击“修复手机访问”，按 Windows 提示授予管理员权限。该操作仅添加限定为当前 Python 程序、当前局域网 IP、实际 TCP 端口及 `LocalSubnet` 的入站允许规则。
-4. **检查代理和网络隔离**：确认 VPN、代理或浏览器加速允许局域网直连；访客 Wi-Fi、AP 隔离和单位网络策略可能阻止设备互访。
-5. **打开检测地址**：访问 `http://主机IP:端口/api/health`。能看到含版本号的 JSON 表示 HTTP 服务可达；若这个地址也一直加载，应先检查连接、地址、防火墙和代理。
+1. **Connect to Wi-Fi.** Make sure the phone and host are on the same LAN rather than using mobile data alone. You can also connect all devices to the same phone hotspot.
+2. **Use the current address.** Enter the complete `http://<host-lan-ip>:<port>/` shown by the host. Check it again after changing networks or adapters.
+3. **Allow inbound connections.** On Windows, click **Fix phone access** (`修复手机访问`) in the host console and approve the Windows administrator prompt. This adds an inbound rule limited to the current Python program, LAN IP, TCP port, and `LocalSubnet`.
+4. **Check proxies and network isolation.** VPNs, proxies, and browser acceleration features must allow direct LAN access. Guest Wi-Fi, AP isolation, or managed network policies can block communication between devices.
+5. **Open the health endpoint.** Visit `http://<host-ip>:<port>/api/health`. A JSON response containing the version means the HTTP service is reachable. If this address also keeps loading, check the connection, address, firewall, and proxy first.
 
-可在主机控制台点击“导出诊断”。报告包含网卡、主机侧 HTTP 和防火墙检测结果，不包含访问码、设备令牌、下载凭据或文件名。防火墙修复不会关闭防火墙，也不会更改网络类别；显式阻止规则和组织策略仍可能优先。
+Use **Export diagnostics** (`导出诊断`) in the host console to generate a report with adapter details, host-side HTTP checks, and firewall status. It excludes access codes, device tokens, download credentials, and file names. Firewall repair keeps the firewall enabled and preserves the network category; explicit block rules and organizational policies can still take precedence.
 
-## 文件保存与传输边界
+## File storage and transfer limits
 
-- 单文件最大 **2 GiB**；所有未清理任务的总预留空间最大 **10 GiB**。
-- 上传按 1 MiB 分块写入磁盘，下载使用流式读取。
-- 暂停和网络恢复后的继续上传，要求当前页面仍保留原文件。刷新或关闭发送页面后，浏览器原文件引用会丢失，需要取消原任务并重新选择文件发送。
-- 下载支持 HTTP Range；是否提供断点续传操作由接收方浏览器决定。
-- 页面显示“已送达”表示文件已完整传入主机；“已发起过下载”不代表已保存到接收设备，请检查浏览器下载列表。
-- 页面展示主机接收到内容的 SHA-256，可用于下载后人工核验。这不代表发送端和接收端已经完成独立校验。
-- 临时文件在 30 分钟无传输操作后清理，正常停止服务也会清理。强制结束进程或断电后可能在系统临时目录留下 `linqdrop-hub-*` 文件夹；确认服务停止后可手动清理。
-- “清理”会删除对应临时文件，使双方都无法再下载；“隐藏已结束记录”只影响当前页面的显示。
+- Maximum file size: **2 GiB**. Total reserved space for uncleared transfers: **10 GiB**.
+- Uploads are written to disk in 1 MiB chunks; downloads are streamed.
+- Pausing or resuming after a network interruption requires the sending page to retain the original file. Refreshing or closing that page loses the browser's file reference; cancel the old transfer and select the file again.
+- Downloads support HTTP Range. Whether a browser offers resumable downloads depends on that browser.
+- **Delivered** (`已送达`) means the complete file has reached the host. **Download initiated** (`已发起过下载`) does not confirm that it has been saved on the receiving device; check the browser's downloads list.
+- The displayed SHA-256 is calculated from the content received by the host and can be used for manual verification after download. It does not indicate that the sender and recipient have independently verified the file.
+- Temporary files are cleaned up after 30 minutes without transfer activity, or when the service stops normally. A forced termination or power failure may leave a `linqdrop-hub-*` directory in the system temporary folder; remove it manually only after confirming that the service has stopped.
+- **Clear** (`清理`) deletes the corresponding temporary file and prevents either party from downloading it. **Hide completed records** (`隐藏已结束记录`) only changes the current page's display.
 
-## 隐私与运行状态
+## Privacy and local state
 
-工具使用 HTTP，并在主机电脑上临时中转文件，请在可信任的局域网使用。需要控制新设备加入时，可开启访问码。
+LinqDrop uses HTTP and temporarily relays files through the host computer. Use it on a trusted LAN, and enable the access code when you want to control new devices joining.
 
-浏览器设备身份保存在该浏览器的站点本地存储。设备和传输任务状态仅在本次服务运行期间保留。程序不提供任意磁盘浏览、任意命令执行或公网转发功能。
+Browser identity is stored in that browser's local site storage. Device and transfer state lasts only for the current service session. The application does not provide arbitrary disk browsing, arbitrary command execution, or public internet forwarding.
 
-`.runtime/` 存放本机启动状态、日志、诊断和访问码开关设置；它已加入 `.gitignore`，不上传到仓库。临时传输文件位于系统临时目录。
+`.runtime/` stores local startup state, logs, diagnostics, and the access-code setting. It is excluded from the repository through `.gitignore`. Transfer files are stored in the system temporary directory.
 
-## 命令行用法
+## Command-line usage
 
 ```bash
-python launcher.py                 # 启动并打开控制台
-python launcher.py --no-browser    # 启动，不打开浏览器
-python launcher.py --port 9000     # 优先使用指定端口
-python launcher.py --stop          # 停止当前目录启动的服务
-python launcher.py --diagnose      # 导出网络诊断
-python server.py --port 8765 --no-browser  # 直接启动前台服务
+python launcher.py                       # Start the service and open the console
+python launcher.py --no-browser          # Start without opening a browser
+python launcher.py --port 9000           # Prefer the specified port
+python launcher.py --stop                # Stop the service started from this folder
+python launcher.py --diagnose            # Export network diagnostics
+python server.py --port 8765 --no-browser # Run the server in the foreground
 ```
 
-macOS / Linux 上请按本机环境将 `python` 替换为 `python3`。兼容入口 `start-windows.bat` 会调用同一个启动器。
+Use `python3` instead of `python` on macOS / Linux as appropriate for your installation. The compatibility entry point `start-windows.bat` uses the same launcher.
 
-## 项目结构
+## Project structure
 
 ```text
 LinqDrop/
-├── LinqDrop.bat          # Windows 统一入口
-├── start-windows.bat     # Windows 兼容入口
-├── start-macos-linux.sh  # macOS / Linux 入口
-├── launcher.py          # 服务启动、复用、停止和诊断
-├── server.py            # HTTP 服务、设备状态和文件传输
-├── network_info.py      # 网卡检测与局域网地址选择
-├── system_tools.py      # 防火墙检测、修复和网络诊断
+├── LinqDrop.bat          # Windows launcher
+├── start-windows.bat     # Windows compatibility entry point
+├── start-macos-linux.sh  # macOS / Linux startup script
+├── launcher.py          # Start, reuse, stop, and diagnose the service
+├── server.py            # HTTP server, device presence, and file transfers
+├── network_info.py      # Network adapters and LAN address selection
+├── system_tools.py      # Firewall checks, repair, and network diagnostics
 ├── public/
-│   ├── index.html       # 网页界面
-│   ├── app.js           # 加入、设备选择和传输交互
-│   ├── style.css        # 桌面与手机样式
-│   └── lib/qrcode.js    # 本地二维码库
-├── LICENSE-qrcode.txt   # 第三方二维码库许可
-└── README.md
+│   ├── index.html       # Web interface
+│   ├── app.js           # Joining, recipients, and transfer interactions
+│   ├── style.css        # Desktop and mobile styles
+│   └── lib/qrcode.js    # Bundled QR code library
+├── LICENSE-qrcode.txt   # Third-party QR code library license
+├── README.md            # English documentation, displayed by default
+└── README.zh-CN.md      # Chinese documentation
 ```
 
-## 验证情况
+## Validation
 
-2.0.1 在 Windows 和 Python 3.10 环境完成服务端、前端逻辑及安装检查，覆盖访问码开关持久化、在线设备过滤、双向传输、文件字节比对和 SHA-256、暂停/继续、HTTP Range 和主机控制权限。
+Version 2.0.1 has undergone server, frontend logic, and installation checks on Windows with Python 3.10. Coverage includes access-code setting persistence, online recipient filtering, bidirectional transfers, byte-for-byte file comparisons and SHA-256, pause/resume, HTTP Range, and host control permissions.
 
-前端逻辑检查使用实际脚本、模拟 DOM 和真实 HTTP 服务，不等同于所有手机浏览器的实机测试。macOS / Linux、不同手机的扫码、文件选择和保存行为仍需在对应设备上确认。
+Frontend logic checks use the actual scripts with a simulated DOM and a real HTTP service. They are not physical-device tests across all mobile browsers. Operation on macOS / Linux, and device-specific QR scanning, file selection, and saving behavior, still need verification on the corresponding devices.
 
-## 许可说明
+## License
 
-第三方二维码库的 MIT 许可见 [LICENSE-qrcode.txt](LICENSE-qrcode.txt)。该文件适用于对应第三方代码；本项目尚未指定整体开源许可证。
+The third-party QR code library's MIT license is included in [LICENSE-qrcode.txt](LICENSE-qrcode.txt). That file applies to the corresponding third-party code. A license for the project as a whole has not been specified.
